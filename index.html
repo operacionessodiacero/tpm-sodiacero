@@ -131,10 +131,20 @@
             <div class="campo"><label for="i-modelo">Modelo</label><input id="i-modelo" autocomplete="off"></div>
             <div class="campo"><label for="i-serie">Serie</label><input id="i-serie" autocomplete="off"></div>
             <div class="campo"><label for="i-anio">Año</label><input id="i-anio" inputmode="numeric" maxlength="4"></div>
-            <div class="campo"><label for="i-capacidad">Capacidad / potencia</label><input id="i-capacidad" placeholder="ej. 50 HP, 10 t"></div>
-            <div class="campo"><label>Criticidad</label><div id="i-crit" class="pills pills-abc"></div></div>
+            <div class="campo">
+              <label for="i-capacidad">Capacidad / potencia</label>
+              <div class="con-unidad">
+                <input id="i-capacidad" inputmode="decimal" placeholder="ej. 37">
+                <select id="i-unidad" aria-label="Unidad"></select>
+              </div>
+              <small class="ayuda">Potencia en kW (estándar internacional); si la placa dice HP, use HP. Capacidad de carga en t.</small>
+            </div>
             <div class="campo"><label for="i-estado">Estado *</label><select id="i-estado"></select></div>
             <div class="campo"><label for="i-responsable">Responsable</label><input id="i-responsable"></div>
+          </div>
+          <div class="campo">
+            <label>Criticidad</label>
+            <div id="i-crit" class="pills pills-crit"></div>
           </div>
           <div class="campo"><label for="i-obs">Observaciones</label><textarea id="i-obs" rows="3"></textarea></div>
           <div class="campo">
@@ -150,9 +160,11 @@
       </form>
 
       <div id="inv-lista" hidden>
+        <div id="inv-resumen" class="estados-resumen"></div>
         <div class="filtros">
           <input id="fi-buscar" type="search" placeholder="Buscar código, nombre, marca, serie…">
           <select id="fi-area"></select>
+          <select id="fi-estado"></select>
         </div>
         <p id="inv-cuenta" class="nota"></p>
         <div id="lista-inv" class="lista"></div>

@@ -181,7 +181,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--acento); ou
 .filtros input[type=search] { grid-column: 1 / -1; }
 @media (min-width: 720px) { .filtros { grid-template-columns: 2fr 1fr 1fr auto; } .filtros input[type=search] { grid-column: auto; } }
 #inv-lista .filtros { grid-template-columns: 1fr; }
-@media (min-width: 720px) { #inv-lista .filtros { grid-template-columns: 2fr 1fr; } }
+@media (min-width: 720px) { #inv-lista .filtros { grid-template-columns: 2fr 1fr 1fr; } }
 
 .lista { display: grid; gap: 8px; }
 .item {
@@ -201,6 +201,41 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--acento); ou
 .estado.abierta { background: #fff4d6; color: #8a6100; }
 .estado.cerrada { background: #e3f3e4; color: var(--verde); }
 #a-estado .estado { margin: 0 6px 0 0; }
+
+/* Estados de equipos: verde operativo, ámbar requiere intervención, azul en mantenimiento, rojo fuera de servicio */
+.est-verde { --est: #2e7d32; --est-fondo: #e3f3e4; }
+.est-ambar { --est: #a15c00; --est-fondo: #fff1d6; }
+.est-azul { --est: #1565c0; --est-fondo: #e7f0fb; }
+.est-rojo { --est: #c62828; --est-fondo: #fdecea; }
+.est-gris { --est: #5f6b75; --est-fondo: #eceff1; }
+.estado[class*="est-"] { background: var(--est-fondo); color: var(--est); }
+.borde-verde { border-left-color: #2e7d32; }
+.borde-ambar { border-left-color: #f0a000; }
+.borde-azul { border-left-color: #1565c0; }
+.borde-rojo { border-left-color: #c62828; }
+.borde-gris { border-left-color: #9aa5ad; opacity: .75; }
+.estados-resumen { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 2px; }
+.est-chip {
+  flex: none; display: flex; align-items: center; gap: 8px; font: inherit; font-size: .82rem; cursor: pointer;
+  background: #fff; color: var(--texto); border: 1px solid var(--borde); border-left: 5px solid var(--est);
+  border-radius: 10px; padding: 8px 12px;
+}
+.est-chip b { font-size: 1.15rem; color: var(--est); }
+.est-chip.activo { background: var(--est-fondo); border-color: var(--est); }
+.prio { font-size: .72rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: .03em; }
+.prio-urgente { background: #c62828; color: #fff; }
+.prio-alta { background: #f57c00; color: #fff; }
+.prio-media { background: #fff1d6; color: #8a5300; }
+.prio-ok { background: #e3f3e4; color: #2e7d32; }
+.prio-baja { background: #eceff1; color: #5f6b75; }
+
+.con-unidad { display: grid; grid-template-columns: 1fr 110px; gap: 8px; }
+.ayuda { display: block; color: var(--suave); font-size: .8rem; margin-top: 4px; }
+.pills-crit { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pills-crit { grid-template-columns: repeat(3, 1fr); } }
+.pill-crit span { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; }
+.pill-crit span i { grid-row: span 2; width: 30px; height: 30px; font-size: .95rem; }
+.pill-crit small { color: var(--suave); font-size: .8rem; font-weight: 400; line-height: 1.3; }
 .vacio { text-align: center; color: var(--suave); padding: 24px 8px; }
 
 .segmento { display: grid; grid-template-columns: 1fr 1fr; background: #dfe4e8; border-radius: 10px; padding: 4px; margin-bottom: 12px; }

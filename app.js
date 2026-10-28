@@ -35,6 +35,33 @@ function opciones(sel, lista, placeholder) {
     lista.map(v => `<option>${esc(v)}</option>`).join('');
 }
 
+function opcionesAgrupadas(sel, grupos, clave, placeholder) {
+  sel.innerHTML = (placeholder ? `<option value="">${esc(placeholder)}</option>` : '') +
+    grupos.map(g => `<optgroup label="${esc(g.grupo)}">${g[clave].map(v => `<option>${esc(v)}</option>`).join('')}</optgroup>`).join('');
+}
+
+function pillsCriticidad(cont) {
+  cont.innerHTML = C.CRITICIDADES.map(c => `
+    <label class="pill pill-crit">
+      <input type="radio" name="criticidad" value="${c.valor}">
+      <span><i>${c.valor}</i><b>${esc(c.nombre)}</b><small>${esc(c.desc)}</small></span>
+    </label>`).join('');
+}
+
+const estadoInfo = nombre => C.ESTADOS_EQUIPO.find(e => e.nombre === nombre) || { nombre, color: 'gris', nivel: 0 };
+const criticidadInfo = valor => C.CRITICIDADES.find(c => c.valor === valor);
+
+// Combina el estado del equipo con su criticidad para ordenar qué intervenir primero
+function prioridadActivo(a) {
+  const nivel = estadoInfo(a.estado).nivel;
+  if (nivel < 0) return { puntos: -1, nombre: 'Dado de baja', clase: 'baja' };
+  const puntos = nivel * ({ A: 3, B: 2, C: 1 }[a.criticidad] || 1);
+  if (puntos >= 6) return { puntos, nombre: 'Urgente', clase: 'urgente' };
+  if (puntos >= 3) return { puntos, nombre: 'Alta', clase: 'alta' };
+  if (puntos >= 1) return { puntos, nombre: 'Media', clase: 'media' };
+  return { puntos, nombre: 'Sin novedad', clase: 'ok' };
+}
+
 function pills(cont, name, lista, tipo = 'radio', conNumero = false) {
   cont.innerHTML = lista.map((v, i) => `
     <label class="pill${conNumero ? ' pill-num' : ''}">
@@ -425,18 +452,33 @@ async function cargarInventario() {
 
 function pintarInventario() {
   const area = $('#fi-area').value;
+  const estado = $('#fi-estado').value;
   const q = $('#fi-buscar').value.trim().toLowerCase();
-  const vis = inventario.filter(a => (!area || a.area === area) &&
-    (!q || [a.codigo, a.nombre, a.tipo, a.marca, a.modelo, a.serie, a.linea, a.ubicacion].join(' ').toLowerCase().includes(q)));
-  $('#inv-cuenta').textContent = `${vis.length} de ${inventario.length} activos`;
-  $('#lista-inv').innerHTML = vis.length ? vis.map(a => `
-    <button type="button" class="item it-inv" data-codigo="${esc(a.codigo)}">
-      <div class="item-top"><b>${esc(a.codigo)}</b>${a.criticidad ? `<span class="chip">Crit. ${esc(a.criticidad)}</span>` : ''}
-        <span class="estado ${a.estado === 'Operativo' ? 'cerrada' : 'abierta'}">${esc(a.estado)}</span></div>
+  const enArea = inventario.filter(a => !area || a.area === area);
+  $('#inv-resumen').innerHTML = [...C.ESTADOS_EQUIPO].sort((x, y) => y.nivel - x.nivel).map(e => `
+    <button type="button" class="est-chip est-${e.color}${estado === e.nombre ? ' activo' : ''}" data-estado="${esc(e.nombre)}">
+      <b>${enArea.filter(a => a.estado === e.nombre).length}</b>${esc(e.nombre)}
+    </button>`).join('');
+
+  const vis = enArea
+    .filter(a => (!estado || a.estado === estado) &&
+      (!q || [a.codigo, a.nombre, a.tipo, a.marca, a.modelo, a.serie, a.linea, a.ubicacion].join(' ').toLowerCase().includes(q)))
+    .map(a => ({ a, p: prioridadActivo(a) }))
+    .sort((x, y) => y.p.puntos - x.p.puntos || String(x.a.codigo).localeCompare(y.a.codigo));
+  $('#inv-cuenta').textContent = `${vis.length} de ${inventario.length} activos · ordenados por prioridad de intervención`;
+  $('#lista-inv').innerHTML = vis.length ? vis.map(({ a, p }) => {
+    const color = estadoInfo(a.estado).color;
+    const crit = criticidadInfo(a.criticidad);
+    return `
+    <button type="button" class="item it-inv borde-${color}" data-codigo="${esc(a.codigo)}">
+      <div class="item-top"><b>${esc(a.codigo)}</b>${crit ? `<span class="chip">${esc(crit.valor)} · ${esc(crit.nombre)}</span>` : ''}
+        <span class="prio prio-${p.clase}">${esc(p.nombre)}</span>
+        <span class="estado est-${color}">${esc(a.estado)}</span></div>
       <div class="item-main">${esc(a.nombre)}</div>
       <div class="item-meta">${esc(a.area)}${a.ubicacion ? ' · ' + esc(a.ubicacion) : ''}${a.linea ? ' · ' + esc(a.linea) : ''}</div>
-      <div class="item-meta">${[a.tipo, a.marca, a.modelo].filter(Boolean).map(esc).join(' · ')}</div>
-    </button>`).join('') : `<p class="vacio">${inventario.length ? 'Sin resultados.' : 'Aún no hay activos registrados.'}</p>`;
+      <div class="item-meta">${[a.tipo, a.marca, a.modelo, a.capacidad].filter(Boolean).map(esc).join(' · ')}</div>
+    </button>`;
+  }).join('') : `<p class="vacio">${inventario.length ? 'Sin resultados.' : 'Aún no hay activos registrados.'}</p>`;
 }
 
 function detalleActivo(codigo) {
@@ -448,8 +490,9 @@ function detalleActivo(codigo) {
     <dl class="detalle">
       ${fila('Nombre', a.nombre)}${fila('Área', a.area)}${fila('Ubicación', a.ubicacion)}${fila('Línea / Proceso', a.linea)}
       ${fila('Tipo', a.tipo)}${fila('Marca', a.marca)}${fila('Modelo', a.modelo)}${fila('Serie', a.serie)}
-      ${fila('Año', a.anio)}${fila('Capacidad / Potencia', a.capacidad)}${fila('Criticidad', a.criticidad)}
-      ${fila('Estado', a.estado)}${fila('Responsable', a.responsable)}${fila('Observaciones', a.observaciones)}
+      ${fila('Año', a.anio)}${fila('Capacidad / Potencia', a.capacidad)}
+      ${fila('Criticidad', criticidadInfo(a.criticidad) ? a.criticidad + ' – ' + criticidadInfo(a.criticidad).nombre : a.criticidad)}
+      ${fila('Estado', a.estado)}${fila('Prioridad', prioridadActivo(a).nombre)}${fila('Responsable', a.responsable)}${fila('Observaciones', a.observaciones)}
       ${fila('Registrado', a.fecha)}${fila('Registrado por', a.registradoPor)}
       ${a.fotoUrl ? `<dt>Foto</dt><dd><a href="${esc(a.fotoUrl)}" target="_blank" rel="noopener">Abrir en Drive</a></dd>` : ''}
     </dl>
@@ -479,7 +522,8 @@ async function guardarActivo(e) {
     ubicacion: ubicVisible ? $('#i-ubicacion').value : '',
     linea: $('#i-linea').value.trim(), nombre: $('#i-nombre').value.trim(), tipo: $('#i-tipo').value,
     marca: $('#i-marca').value.trim(), modelo: $('#i-modelo').value.trim(), serie: $('#i-serie').value.trim(),
-    anio: $('#i-anio').value.trim(), capacidad: $('#i-capacidad').value.trim(),
+    anio: $('#i-anio').value.trim(),
+    capacidad: $('#i-capacidad').value.trim() ? $('#i-capacidad').value.trim() + ' ' + $('#i-unidad').value : '',
     criticidad: radioVal($('#f-activo'), 'criticidad'), estado: $('#i-estado').value,
     responsable: $('#i-responsable').value.trim(), observaciones: $('#i-obs').value.trim(),
     registradoPor: Store.get('tpm_nombre', '')
@@ -566,13 +610,16 @@ function iniciar() {
   pills($('#t-clasif'), 'clasificacion', C.CLASIFICACIONES);
   pills($('#t-prio'), 'prioridad', ['A', 'B', 'C']);
   pills($('#t-anorm'), 'anormalidad', C.ANORMALIDADES, 'checkbox', true);
-  pills($('#i-crit'), 'criticidad', ['A', 'B', 'C']);
+  pillsCriticidad($('#i-crit'));
   opciones($('#t-area'), areas, 'Seleccione el área');
   opciones($('#i-area'), areas, 'Seleccione el área');
   opciones($('#fi-area'), areas, 'Todas las áreas');
   opciones($('#t-paso'), ['1', '2', '3', '4', '5', '6', '7'], '—');
-  opciones($('#i-tipo'), C.TIPOS_EQUIPO, 'Seleccione');
-  opciones($('#i-estado'), C.ESTADOS_EQUIPO);
+  opcionesAgrupadas($('#i-tipo'), C.TIPOS_EQUIPO, 'tipos', 'Seleccione');
+  opcionesAgrupadas($('#i-unidad'), C.UNIDADES, 'unidades');
+  const estados = C.ESTADOS_EQUIPO.map(e => e.nombre);
+  opciones($('#i-estado'), estados);
+  opciones($('#fi-estado'), estados, 'Todos los estados');
   enlazarArea($('#t-area'), $('#t-ubicacion'));
   enlazarArea($('#i-area'), $('#i-ubicacion'));
 
@@ -603,6 +650,13 @@ function iniciar() {
   ['#ft-color', '#ft-estado'].forEach(s => $(s).addEventListener('change', pintarTarjetas));
   $('#ft-buscar').addEventListener('input', pintarTarjetas);
   $('#fi-area').addEventListener('change', pintarInventario);
+  $('#fi-estado').addEventListener('change', pintarInventario);
+  $('#inv-resumen').addEventListener('click', e => {
+    const b = e.target.closest('[data-estado]');
+    if (!b) return;
+    $('#fi-estado').value = $('#fi-estado').value === b.dataset.estado ? '' : b.dataset.estado;
+    pintarInventario();
+  });
   $('#fi-buscar').addEventListener('input', pintarInventario);
   $('#btn-recargar').addEventListener('click', cargarTarjetas);
   $('#lista-tarjetas').addEventListener('click', e => {
