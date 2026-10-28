@@ -12,8 +12,9 @@ window.APP_CONFIG = {
     { nombre: 'Taller', codigo: 'TAL' },
     {
       nombre: 'Patio de alistamiento de materia prima', codigo: 'PAT',
-      ubicaciones: ['Hangar 1', 'Hangar 2', 'Hangar 3', 'Hangar 4', 'Hangar de despachos']
+      ubicaciones: ['Hangar 1', 'Hangar 2', 'Hangar 3', 'Hangar 4', 'Hangar 5']
     },
+    { nombre: 'Despachos', codigo: 'DES' },
     { nombre: 'Almacén de materia prima para proceso (horno)', codigo: 'AMP' },
     { nombre: 'Almacenamiento y preparación de materiales', codigo: 'APM' },
     { nombre: 'Mallas', codigo: 'MAL' },
