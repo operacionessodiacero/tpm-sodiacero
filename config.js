@@ -9,17 +9,18 @@ window.APP_CONFIG = {
 
   // "codigo" se usa para generar el código de los activos: SDA-<codigo>-0001
   AREAS: [
-    { nombre: 'TALLER', codigo: 'TAL' },
+    { nombre: 'Taller', codigo: 'TAL' },
     {
-      nombre: 'PATIO Y ALISTAMIENTO', codigo: 'PAT',
-      ubicaciones: ['HANGAR 1', 'HANGAR 2', 'HANGAR 3', 'HANGAR 4', 'HANGAR 5', 'HANGAR 6',
-        'HANGAR CARGUE DE MATERIA PRIMA AL HORNO']
+      nombre: 'Patio de alistamiento de materia prima', codigo: 'PAT',
+      ubicaciones: ['Hangar 1', 'Hangar 2', 'Hangar 3', 'Hangar 4', 'Hangar de despachos']
     },
-    { nombre: 'PLANTA - TREFI/DOBL/ELECTR', codigo: 'TDE' },
-    { nombre: 'PLANTA - TREN DE LAMINACIÓN 230', codigo: 'L230' },
-    { nombre: 'PLANTA - TREN DE LAMINACIÓN 380', codigo: 'L380' },
-    { nombre: 'ENTORCHADO', codigo: 'ENT' },
-    { nombre: 'ALMACÉN TALLER', codigo: 'ALM' }
+    { nombre: 'Almacén de materia prima para proceso (horno)', codigo: 'AMP' },
+    { nombre: 'Almacenamiento y preparación de materiales', codigo: 'APM' },
+    { nombre: 'Mallas', codigo: 'MAL' },
+    { nombre: 'Tren de laminación 230', codigo: 'L230' },
+    { nombre: 'Tren de laminación 380', codigo: 'L380' },
+    { nombre: 'Entorchado', codigo: 'ENT' },
+    { nombre: 'Almacén de repuestos y maquinaria', codigo: 'ALM' }
   ],
 
   CLASIFICACIONES: ['Limpieza', 'Mantenimiento autónomo', 'Requiere intervención de mantenimiento'],
