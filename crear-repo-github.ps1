@@ -134,7 +134,7 @@ Write-Host "Milestones listos"
 
 # --- Issues ---
 $issues = @{}
-foreach ($i in (Invoke-Gh issue list --repo $full --state all --limit 500 --json title,url | ConvertFrom-Json)) {
+foreach ($i in (Invoke-Gh issue list --repo $full --state all --limit 500 --json "title,url" | ConvertFrom-Json)) {
   $issues[$i.title] = $i.url
 }
 foreach ($p in $plan.pasos) {
