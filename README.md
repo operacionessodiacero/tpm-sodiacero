@@ -1,5 +1,7 @@
 # Plan de implementación TPM — Sodiacero
 
+> **La app de tarjetas TPM e inventario se movió al link único https://operacionessodiacero.github.io/sistema-gestion/** (repositorio `sistema-gestion`). Este link redirige allá y conserva los links de instalación. Este repositorio queda para el plan TPM (issues, milestones y tablero).
+
 > **10 pilares, una sola meta: cero pérdidas** — cero fallas, cero defectos, cero accidentes.
 
 **Duración:** 24 meses de implementación + consolidación hasta el mes 30.
